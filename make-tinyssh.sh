@@ -35,7 +35,8 @@ log2() {
   echo "=== `date` ===   $@" >&5
 }
 
-version=`head -1 "${top}/debian/changelog"  | cut -d '(' -f2 | cut -d ')' -f1` #XXX
+#version=`head -1 "${top}/debian/changelog"  | cut -d '(' -f2 | cut -d ')' -f1` #XXX
+version=`git describe --tags --dirty`
 if [ x"${version}" = x ]; then
   version=noversion
 fi
