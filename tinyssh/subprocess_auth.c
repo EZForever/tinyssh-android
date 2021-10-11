@@ -52,7 +52,15 @@ static void check(uid_t uid, const char *d, const char *f, long long *err) {
     if (e == 0 && (st.st_mode & 022) != 0) { errno = EACCES; log_w4("auth: bad mode: directory writable by group or others: ", d, "/", f); e = 1; }
     if (e == 0 && st.st_uid != uid && st.st_uid != 0) { errno = EACCES; log_w4("auth: bad owner: ", d, "/", f); e = 1; }
 
+#ifdef __ANDROID__
+    /*
+    Due to /home is essentially gone on Android authorized_keys is pretty much must be put under somewhere group- or global- writable.
+    So we only check the permission for that file instead. This do create some security concerns, and thus warnings are still issued.
+    */
+    if (e && f) *err = 1;
+#else
     if (e) *err = 1;
+#endif
     else log_d4("auth: path: ok: ", d, "/", f);
 }
 
@@ -80,21 +88,23 @@ int subprocess_auth_checkpath_(char *path, long long pathlen, uid_t uid) {
     return (err == 0);
 }
 
-int subprocess_auth_authorizedkeys_(const char *keyname, const char *key, const char *dir, char *buf, long long bufmax) {
+int subprocess_auth_authorizedkeys_(const char *keyname, const char *key, char *buf, long long bufmax) {
 
     int fd = -1;
     int r;
 
     fd = open_read("authorized_keys");
     if (fd == -1) {
-        log_w3("auth: unable to open file: ", dir, "/.ssh/authorized_keys");
+        if (!getcwd(buf, bufmax)) str_copyn(buf, bufmax, "(unknown)");
+        log_w3("auth: unable to open file: ", buf, "/authorized_keys");
         return 0;
     }
 
     do {
         r = getln(fd, buf, bufmax);
         if (r == -1) {
-            log_w3("auth: unable to read from file ", dir, "/.ssh/authorized_keys");
+            if (!getcwd(buf, bufmax)) str_copyn(buf, bufmax, "(unknown)");
+            log_w3("auth: unable to read from file ", buf, "/authorized_keys");
             return 0;
         }
         if (findnameandkey(keyname, key, buf)) return 1; /* authorized */
@@ -107,7 +117,7 @@ int subprocess_auth_authorizedkeys_(const char *keyname, const char *key, const 
 The 'subprocess_auth' is used for authorization using 
 ~/.ssh/authorized_keys file.
 */
-int subprocess_auth(const char *account, const char *keyname, const char *key) {
+int subprocess_auth(const char *account, const char *keyname, const char *key, const char *keydir) {
 
     pid_t pid;
     int status;
@@ -133,6 +143,16 @@ int subprocess_auth(const char *account, const char *keyname, const char *key) {
             global_die(111);
         }
 
+#ifdef __ANDROID__
+        /*
+        Android getpwnam() always return "/" for pw->pw_dir, which is not helpful
+        So we chdir to the key directory instead, and since we're here that directory must exists
+        */
+        if (chdir(keydir) == -1) {
+            log_w2("auth: unable to change directory to ", keydir);
+            global_die(111);
+        }
+#else
         /* change directory to ~/.ssh */
         if (chdir(pw->pw_dir) == -1) {
             log_w2("auth: unable to change directory to ", pw->pw_dir);
@@ -142,10 +162,11 @@ int subprocess_auth(const char *account, const char *keyname, const char *key) {
             log_w3("auth: unable to change directory to ", pw->pw_dir, "/.ssh");
             global_die(111);
         }
+#endif
 
         /* authorization starts here */
         if (!subprocess_auth_checkpath_((char *)buf, sizeof buf, pw->pw_uid)) global_die(111);
-        if (!subprocess_auth_authorizedkeys_(keyname, key, pw->pw_dir, (char *)buf, sizeof buf))  global_die(111);
+        if (!subprocess_auth_authorizedkeys_(keyname, key, (char *)buf, sizeof buf))  global_die(111);
         /* authorization ends here */
 
         global_die(0);

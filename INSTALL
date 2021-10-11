@@ -4,6 +4,10 @@ Please refer to [NDK build guide](https://developer.android.com/ndk/guides/other
 
 ### Running
 
-You need to create a SSH key directory with `tinysshd tinysshd-makekey /data/local/tmp/sshkeydir`.
+First, create a SSH key directory with `tinysshd tinysshd-makekey /data/local/tmp/sshkeydir`.
 
-Start the server with `toybox`: `toybox nc -s 0.0.0.0 -p 8022 -L tinysshd /data/local/tmp/sshkeydir`.
+You will need a ED25519 key pair for authorization. Put your public key into authorized_keys: `echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGNuFuEdklT/eyEkLKgFhVHOLw3A9eI7myBAA0q+Zly1 name@name' >>/data/local/tmp/sshkeydir/authorized_keys`
+
+And finally start the server with `toybox`: `toybox nc -s 127.0.0.1 -p 8022 -L tinysshd /data/local/tmp/sshkeydir`.
+
+Note that `toybox nc` will send stderr to the client, causing handshake fails if tinysshd is started with verbose flag set. To avoid this problem and obtain the verbose messages, redirect it to a file: `toybox nc -s 127.0.0.1 -p 8022 -L sh -c "tinysshd -vv /data/local/tmp/sshkeydir 2>tinysshd.log"`.

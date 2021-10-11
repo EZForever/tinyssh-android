@@ -16,7 +16,7 @@ Public domain.
 #include "log.h"
 #include "packet.h"
 
-int packet_auth(struct buf *b, struct buf *b2) {
+int packet_auth(const char *keydir, struct buf *b, struct buf *b2) {
 
     crypto_uint8 ch, flagsignature;
     long long pos, i, count, sign_bytes = 0;
@@ -133,7 +133,7 @@ int packet_auth(struct buf *b, struct buf *b2) {
                 buf_purge(b);
                 putsignpkbase64(b, pk);
                 buf_putnum8(b, 0);
-                if (subprocess_auth(packet.name, pkname, (char *)b->buf) == 0) goto authorized;
+                if (subprocess_auth(packet.name, pkname, (char *)b->buf, keydir) == 0) goto authorized;
             }
         }
 

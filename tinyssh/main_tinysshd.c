@@ -171,7 +171,7 @@ rekeying:
 
     /* authentication + authorization */
     if (packet.flagauthorized == 0) {
-        if (!packet_auth(&b1, &b2)) die_fatal("authentication failed", 0, 0);
+        if (!packet_auth(keydir, &b1, &b2)) die_fatal("authentication failed", 0, 0);
         packet.flagauthorized = 1;
     }
 

@@ -63,6 +63,10 @@ int main_tinysshd_makekey(int argc, char **argv) {
         if (sshcrypto_keys[i].sign_keypair(pk, sk) != 0) die_fatal("unable to generate key pair", x, 0);
         umask(022);
         create(x, sshcrypto_keys[i].sign_publickeyfilename, pk, sshcrypto_keys[i].sign_publickeybytes);
+#ifdef __ANDROID__
+        /* Create an empty authorized_keys to sort of hint the user */
+        create(x, "authorized_keys", 0, 0);
+#endif
         umask(077);
         create(x, sshcrypto_keys[i].sign_secretkeyfilename, sk, sshcrypto_keys[i].sign_secretkeybytes);
     }
