@@ -1,1 +1,9 @@
-See https://tinyssh.org/install.html
+### Building
+
+Please refer to [NDK build guide](https://developer.android.com/ndk/guides/other_build_systems#non-autoconf_make_projects) (or [this link](https://developer.android.google.cn/ndk/guides/other_build_systems#non-autoconf_make_projects) if the previous one is not available) for build instructions. Use `cross-compile` as the build target.
+
+### Running
+
+You need to create a SSH key directory with `tinysshd-makekey /data/local/tmp/sshkeydir`.
+
+Start the server with `toybox`: `toybox nc -s 0.0.0.0 -p 8022 -L tinysshd /data/local/tmp/sshkeydir`.
