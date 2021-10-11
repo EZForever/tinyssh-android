@@ -4,6 +4,6 @@ Please refer to [NDK build guide](https://developer.android.com/ndk/guides/other
 
 ### Running
 
-You need to create a SSH key directory with `tinysshd-makekey /data/local/tmp/sshkeydir`.
+You need to create a SSH key directory with `tinysshd tinysshd-makekey /data/local/tmp/sshkeydir`.
 
 Start the server with `toybox`: `toybox nc -s 0.0.0.0 -p 8022 -L tinysshd /data/local/tmp/sshkeydir`.

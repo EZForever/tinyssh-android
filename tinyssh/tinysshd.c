@@ -35,6 +35,13 @@ int main(int argc, char **argv) {
     if (!x) _exit(100);
     xlen = str_len(x);
 
+    // XXX: This breaks some commandline syntax: `tinysshd tinysshd-key-dir` will error out
+    if (str_equaln(x, xlen, "tinysshd") && str_start(argv[1], "tinysshd")) {
+        argv++;
+        x = argv[0];
+        xlen = str_len(x);
+    }
+
     if (str_equaln(x, xlen, "tinysshd-printkey")) {
         return main_tinysshd_printkey(argc, argv);
     }
