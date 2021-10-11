@@ -43,6 +43,11 @@ int main_tinysshd_makekey(int argc, char **argv) {
         while (*++x) {
             if (*x == 'q') { flagverbose = 0; continue; }
             if (*x == 'Q') { flagverbose = 1; continue; }
+            if (*x == '-') {
+                ++x;
+                if (!strcmp(x, "help")) { log_u1(USAGE); global_die(0); }
+                if (!strcmp(x, "version")) { log_u1(VERSION); global_die(0); }
+            }
             die_usage(USAGE);
         }
     }

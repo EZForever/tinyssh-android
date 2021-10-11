@@ -94,6 +94,11 @@ int main_tinysshd(int argc, char **argv) {
                 if (x[1]) { channel_subsystem_add(x + 1); break; }
                 if (argv[1]) { channel_subsystem_add(*++argv); break; }
             }
+            if (*x == '-') {
+                ++x;
+                if (!strcmp(x, "help")) { log_u1(USAGE); global_die(0); }
+                if (!strcmp(x, "version")) { log_u1(VERSION); global_die(0); }
+            }
 
             die_usage(USAGE);
         }

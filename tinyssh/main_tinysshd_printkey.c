@@ -39,6 +39,11 @@ int main_tinysshd_printkey(int argc, char **argv) {
         if (x[0] == '-' && x[1] == 0) break;
         if (x[0] == '-' && x[1] == '-' && x[2] == 0) break;
         while (*++x) {
+            if (*x == '-') {
+                ++x;
+                if (!strcmp(x, "help")) { log_u1(USAGE); global_die(0); }
+                if (!strcmp(x, "version")) { log_u1(VERSION); global_die(0); }
+            }
             die_usage(USAGE);
         }
     }
