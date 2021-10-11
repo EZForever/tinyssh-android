@@ -132,9 +132,21 @@ int subprocess_auth(const char *account, const char *keyname, const char *key, c
         if (!account || !keyname || !key) bug_inval();
         if (sshcrypto_sign_BASE64PUBLICKEYMIN > str_len(key) + 1) bug_inval();
 
+#ifdef __ANDROID__
+        /*
+        Android getpwnam() always return "/" for pw->pw_dir, which is not helpful
+        So we chdir to the key directory instead, and since we're here that directory must exists
+        */
+        pw = getpwuid(geteuid());
+
+        if (chdir(keydir) == -1) {
+            log_w2("auth: unable to change directory to ", keydir);
+            global_die(111);
+        }
+#else
         /* drop privileges */
         pw = getpwnam(account);
-        if (!pw) { 
+        if (!pw) {
             log_w3("auth: account ", account, ": not exist");
             global_die(111);
         }
@@ -143,16 +155,6 @@ int subprocess_auth(const char *account, const char *keyname, const char *key, c
             global_die(111);
         }
 
-#ifdef __ANDROID__
-        /*
-        Android getpwnam() always return "/" for pw->pw_dir, which is not helpful
-        So we chdir to the key directory instead, and since we're here that directory must exists
-        */
-        if (chdir(keydir) == -1) {
-            log_w2("auth: unable to change directory to ", keydir);
-            global_die(111);
-        }
-#else
         /* change directory to ~/.ssh */
         if (chdir(pw->pw_dir) == -1) {
             log_w2("auth: unable to change directory to ", pw->pw_dir);
