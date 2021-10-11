@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
     xlen = str_len(x);
 
     // XXX: This breaks some commandline syntax: `tinysshd tinysshd-key-dir` will error out
-    if (str_equaln(x, xlen, "tinysshd") && str_start(argv[1], "tinysshd")) {
+    if (str_equaln(x, xlen, "tinysshd") && argc >= 2 && str_start(argv[1], "tinysshd")) {
         argv++;
         x = argv[0];
         xlen = str_len(x);
