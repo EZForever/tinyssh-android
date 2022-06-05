@@ -67,6 +67,9 @@ don't use syslog, use standard error output (default)
 .B \-x \fIname=command
 add subsystem command (e.g.: sftp=/usr/libexec/openssh/sftp\-server)
 .TP
+.B \-e \fIcommand
+execute the given command instead of spawning the shell (disables \fIexec\fR/\fIsubsystem\fR channel requests)
+.TP
 .I keydir
 directory containing TinySSH keys, typically /etc/tinyssh/sshkeydir
 .SH AUTHORIZATION
@@ -130,6 +133,7 @@ ExecStartPre=\-/usr/sbin/tinysshd\-makekey \-q /etc/tinyssh/sshkeydir
 EnvironmentFile=\-/etc/default/tinysshd
 ExecStart=/usr/sbin/tinysshd ${TINYSSHDOPTS} \-\- /etc/tinyssh/sshkeydir
 KillMode=process
+SuccessExitStatus=111
 StandardInput=socket
 StandardError=journal
 
@@ -139,8 +143,8 @@ WantedBy=multi\-user.target
 .RE
 .RE
 .SH SEE ALSO
-.BR tinysshd\-makekey (1),
-.BR tinysshd\-printkey (1)
+.BR tinysshd\-makekey (8),
+.BR tinysshd\-printkey (8)
 .sp
 .nf
 https://tinyssh.org/

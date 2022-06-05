@@ -7,7 +7,7 @@
 * tinysshd doesn't use dynamic memory allocation (no allocation failures, etc.)
 
 ### Crypto primitives ###
-* State-of-the-art crypto: ssh-ed25519, curve25519-sha256@libssh.org, chacha20-poly1305@openssh.com
+* State-of-the-art crypto: ssh-ed25519, curve25519-sha256, chacha20-poly1305@openssh.com
 * Older standard: <strike>ecdsa-sha2-nistp256, ecdh-sha2-nistp256, aes256-ctr, hmac-sha2-256</strike> removed in version 20190101
 * Postquantum crypto: sntrup761x25519-sha512@openssh.com, chacha20-poly1305@openssh.com
 
@@ -17,8 +17,8 @@
 * beta(updated): 2018.01.01 - ????.??.?? (ready for production use)
 * stable: expected ????.??.?? - (ready for production use - including post-quantum crypto)
 
-### Current release (20210319) ###
-* has 61950 words of code
+### Current release (20220305) ###
+* has 62633 words of code
 * beta release
 
 ### How-to run ###
@@ -56,6 +56,7 @@
                EnvironmentFile=-/etc/default/tinysshd
                ExecStart=/usr/sbin/tinysshd ${TINYSSHDOPTS} -- /etc/tinyssh/sshkeydir
                KillMode=process
+               SuccessExitStatus=111
                StandardInput=socket
                StandardError=journal
 
@@ -63,4 +64,4 @@
                WantedBy=multi-user.target
 ~~~
 
-[![TravisCI status](https://travis-ci.org/janmojzis/tinyssh.svg?branch=master)](https://travis-ci.org/janmojzis/tinyssh)
+[![TravisCI status](https://travis-ci.com/janmojzis/tinyssh.svg?branch=master)](https://travis-ci.com/janmojzis/tinyssh)
